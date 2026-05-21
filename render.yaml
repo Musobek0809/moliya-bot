@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: moliya-bot
+    runtime: python
+    plan: free
+    region: frankfurt
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: ADMIN_ID
+        sync: false
+      - key: CHANNEL_ID
+        sync: false
+      - key: CLICK_SERVICE_ID
+        sync: false
+      - key: CLICK_MERCHANT_USER_ID
+        sync: false
+      - key: CLICK_SECRET_KEY
+        sync: false
+      - key: COURSE_PRICE
+        value: "1000000"
+      - key: ACCESS_DAYS
+        value: "90"
+      - key: WEBHOOK_HOST
+        sync: false
+      - key: PORT
+        value: "8080"
