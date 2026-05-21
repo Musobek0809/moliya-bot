@@ -979,7 +979,12 @@ async def click_complete(
 # ── PAYME WEBHOOK ──
 
 def payme_error(code, message, data=None, request_id=None):
+    """Payme JSON-RPC xato javobi (multilingual message format)"""
+    # Payme message ni 3 tilda kutadi
+    if isinstance(message, str):
+        message = {"ru": message, "uz": message, "en": message}
     err = {
+        "jsonrpc": "2.0",
         "id": request_id,
         "error": {"code": code, "message": message},
     }
@@ -989,7 +994,8 @@ def payme_error(code, message, data=None, request_id=None):
 
 
 def payme_result(result, request_id=None):
-    return {"id": request_id, "result": result}
+    """Payme JSON-RPC muvaffaqiyatli javob"""
+    return {"jsonrpc": "2.0", "id": request_id, "result": result}
 
 
 def payme_check_auth(request: Request) -> bool:
