@@ -83,9 +83,7 @@ WELCOME = """🌟 <b>Молиявий Эркинлик Дарслари</b>
 ✅ <b>3 ой</b> давомида чекловсиз томоша
 ✅ Барча қўшимча PDF материаллар
 
-💸 Асл нархи: <s>3 300 000 сўм</s>
-✨ Бугунги нарх: <b>1 000 000 сўм</b>
-🎁 Чегирма: <b>70%</b>
+💰 Нархи: <b>1 000 000 сўм</b>
 
 👇 Пастдаги тугмалардан фойдаланинг"""
 
@@ -905,16 +903,33 @@ async def remove_expired_users():
 # ─────────────────────────────────────────────────────────
 
 async def setup_bot_commands():
-    """Faqat admin uchun /stats menyu buyrug'i. Boshqalar uchun hech narsa."""
-    from aiogram.types import BotCommand, BotCommandScopeChat, BotCommandScopeDefault
-    # Hammaga - bo'sh menyu
-    await bot.set_my_commands(commands=[], scope=BotCommandScopeDefault())
-    # Adminga - statistika
+    """Eski commandlarni barcha scope'lardan tozalash va faqat adminga /stats qoldirish"""
+    from aiogram.types import (
+        BotCommand, BotCommandScopeChat, BotCommandScopeDefault,
+        BotCommandScopeAllPrivateChats, BotCommandScopeAllGroupChats,
+        BotCommandScopeAllChatAdministrators
+    )
+    # Barcha scope'lardan eski commandlarni o'chirish
+    for scope in [
+        BotCommandScopeDefault(),
+        BotCommandScopeAllPrivateChats(),
+        BotCommandScopeAllGroupChats(),
+        BotCommandScopeAllChatAdministrators(),
+    ]:
+        try:
+            await bot.delete_my_commands(scope=scope)
+        except Exception as e:
+            log.warning(f"Delete commands xato ({type(scope).__name__}): {e}")
+
+    # Adminga - statistika buyrug'i
     if ADMIN_ID:
-        await bot.set_my_commands(
-            commands=[BotCommand(command="stats", description="📊 Статистика")],
-            scope=BotCommandScopeChat(chat_id=ADMIN_ID)
-        )
+        try:
+            await bot.set_my_commands(
+                commands=[BotCommand(command="stats", description="📊 Статистика")],
+                scope=BotCommandScopeChat(chat_id=ADMIN_ID)
+            )
+        except Exception as e:
+            log.warning(f"Admin commands xato: {e}")
 
 
 @asynccontextmanager
