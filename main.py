@@ -60,7 +60,7 @@ PAYME_SECRET_KEY = os.getenv("PAYME_SECRET_KEY", "")
 PAYME_TEST_KEY = os.getenv("PAYME_TEST_KEY", "")
 PAYME_CHECKOUT_URL = "https://checkout.paycom.uz"
 
-COURSE_PRICE = int(os.getenv("COURSE_PRICE", "1000000"))  # сум
+COURSE_PRICE = int(os.getenv("COURSE_PRICE", "500000"))  # сум
 ACCESS_DAYS = int(os.getenv("ACCESS_DAYS", "90"))
 
 WEBHOOK_HOST = os.getenv("WEBHOOK_HOST", "").rstrip("/")
@@ -98,7 +98,7 @@ WELCOME = """🌟 <b>Молиявий Эркинлик Дарслари</b>
 ✅ <b>3 ой</b> давомида чекловсиз томоша
 ✅ Барча қўшимча PDF материаллар
 
-💰 Нархи: <b>1 000 000 сўм</b>
+💰 Нархи: <b>500 000 сўм</b>
 
 👇 Пастдаги тугмалардан фойдаланинг"""
 
@@ -115,7 +115,7 @@ COURSE_INFO = """📚 <b>Курс таркиби — 8 та дастур</b>
 
 ━━━━━━━━━━━━━━━━━
 ⏱ <b>Жами: 38 соат 16 дақиқа</b>
-💰 Нарх: <b>1 000 000 сўм</b>
+💰 Нарх: <b>500 000 сўм</b>
 📅 Кириш: <b>3 ой</b>"""
 
 ASK_NAME = """✍️ <b>Сотиб олиш жараёни (1/3)</b>
@@ -139,7 +139,7 @@ CONFIRM_DATA = """🤝 <b>Сотиб олиш жараёни (3/3)</b>
 👤 <b>Исм:</b> {name}
 📱 <b>Телефон:</b> <code>{phone}</code>
 💬 <b>Telegram:</b> @{username}
-💰 <b>Тўлов:</b> 1 000 000 сўм
+💰 <b>Тўлов:</b> 500 000 сўм
 📅 <b>Кириш:</b> 3 ой
 
 Маълумотлар тўғрими?"""
@@ -148,7 +148,7 @@ CHOOSE_PAYMENT = """💳 <b>Тўлов усулини танланг</b>
 
 👤 <b>{name}</b>
 📱 <b>{phone}</b>
-💰 <b>1 000 000 сўм</b>
+💰 <b>500 000 сўм</b>
 
 👇 Қайси тўлов тизими орқали тўлайсиз?"""
 
