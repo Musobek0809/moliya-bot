@@ -473,7 +473,7 @@ def payme_deep_link(merchant_trans_id, amount):
     Summa tiyin (Payme tiyinda hisoblaydi: 1 so'm = 100 tiyin)
     """
     amount_tiyin = amount * 100
-    params = f"m={PAYME_MERCHANT_ID};ac.order={merchant_trans_id};a={amount_tiyin}"
+    params = f"m={PAYME_MERCHANT_ID};ac.buyurtma_identifikatori={merchant_trans_id};a={amount_tiyin}"
     encoded = base64.b64encode(params.encode()).decode()
     return f"{PAYME_CHECKOUT_URL}/{encoded}"
 
@@ -1033,13 +1033,13 @@ async def payme_webhook(request: Request):
     # ── CheckPerformTransaction ──
     if method == "CheckPerformTransaction":
         account = params.get("account", {})
-        order = account.get("order", "")
+        order = account.get("buyurtma_identifikatori", "")
         amount = params.get("amount", 0)
 
         payment = await get_payment_by_trans_id(order)
         if not payment:
             return payme_error(-31050, "Order not found",
-                              data={"name": "order"}, request_id=request_id)
+                              data={"name": "buyurtma_identifikatori"}, request_id=request_id)
 
         expected_tiyin = payment["amount"] * 100
         if amount != expected_tiyin:
@@ -1055,13 +1055,13 @@ async def payme_webhook(request: Request):
         payme_id = params.get("id", "")
         time_ms = params.get("time", 0)
         account = params.get("account", {})
-        order = account.get("order", "")
+        order = account.get("buyurtma_identifikatori", "")
         amount = params.get("amount", 0)
 
         payment = await get_payment_by_trans_id(order)
         if not payment:
             return payme_error(-31050, "Order not found",
-                              data={"name": "order"}, request_id=request_id)
+                              data={"name": "buyurtma_identifikatori"}, request_id=request_id)
 
         # Avval shu tranzaktsiya yaratilganmi?
         if payment.get("external_id") == payme_id:
