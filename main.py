@@ -60,7 +60,7 @@ PAYME_SECRET_KEY = os.getenv("PAYME_SECRET_KEY", "")
 PAYME_TEST_KEY = os.getenv("PAYME_TEST_KEY", "")
 PAYME_CHECKOUT_URL = "https://checkout.paycom.uz"
 
-COURSE_PRICE = int(os.getenv("COURSE_PRICE", "500000"))  # сум
+COURSE_PRICE = int(os.getenv("COURSE_PRICE", "1000000"))  # сум
 ACCESS_DAYS = int(os.getenv("ACCESS_DAYS", "90"))
 
 WEBHOOK_HOST = os.getenv("WEBHOOK_HOST", "").rstrip("/")
@@ -98,7 +98,7 @@ WELCOME = """🌟 <b>Молиявий Эркинлик Дарслари</b>
 ✅ <b>3 ой</b> давомида чекловсиз томоша
 ✅ Барча қўшимча PDF материаллар
 
-💰 Нархи: <b>500 000 сўм</b>
+💰 Нархи: <b>1 000 000 сўм</b>
 
 👇 Пастдаги тугмалардан фойдаланинг"""
 
@@ -115,7 +115,7 @@ COURSE_INFO = """📚 <b>Курс таркиби — 8 та дастур</b>
 
 ━━━━━━━━━━━━━━━━━
 ⏱ <b>Жами: 38 соат 16 дақиқа</b>
-💰 Нарх: <b>500 000 сўм</b>
+💰 Нарх: <b>1 000 000 сўм</b>
 📅 Кириш: <b>3 ой</b>"""
 
 ASK_NAME = """✍️ <b>Сотиб олиш жараёни (1/3)</b>
@@ -139,7 +139,7 @@ CONFIRM_DATA = """🤝 <b>Сотиб олиш жараёни (3/3)</b>
 👤 <b>Исм:</b> {name}
 📱 <b>Телефон:</b> <code>{phone}</code>
 💬 <b>Telegram:</b> @{username}
-💰 <b>Тўлов:</b> 500 000 сўм
+💰 <b>Тўлов:</b> 1 000 000 сўм
 📅 <b>Кириш:</b> 3 ой
 
 Маълумотлар тўғрими?"""
@@ -148,7 +148,7 @@ CHOOSE_PAYMENT = """💳 <b>Тўлов усулини танланг</b>
 
 👤 <b>{name}</b>
 📱 <b>{phone}</b>
-💰 <b>500 000 сўм</b>
+💰 <b>1 000 000 сўм</b>
 
 👇 Қайси тўлов тизими орқали тўлайсиз?"""
 
@@ -473,7 +473,7 @@ def payme_deep_link(merchant_trans_id, amount):
     Summa tiyin (Payme tiyinda hisoblaydi: 1 so'm = 100 tiyin)
     """
     amount_tiyin = amount * 100
-    params = f"m={PAYME_MERCHANT_ID};ac.buyurtma_identifikatori={merchant_trans_id};a={amount_tiyin}"
+    params = f"m={PAYME_MERCHANT_ID};ac.order_id={merchant_trans_id};a={amount_tiyin}"
     encoded = base64.b64encode(params.encode()).decode()
     return f"{PAYME_CHECKOUT_URL}/{encoded}"
 
@@ -1033,13 +1033,13 @@ async def payme_webhook(request: Request):
     # ── CheckPerformTransaction ──
     if method == "CheckPerformTransaction":
         account = params.get("account", {})
-        order = account.get("buyurtma_identifikatori", "")
+        order = account.get("order_id", "")
         amount = params.get("amount", 0)
 
         payment = await get_payment_by_trans_id(order)
         if not payment:
             return payme_error(-31050, "Order not found",
-                              data={"name": "buyurtma_identifikatori"}, request_id=request_id)
+                              data={"name": "order_id"}, request_id=request_id)
 
         expected_tiyin = payment["amount"] * 100
         if amount != expected_tiyin:
@@ -1055,13 +1055,13 @@ async def payme_webhook(request: Request):
         payme_id = params.get("id", "")
         time_ms = params.get("time", 0)
         account = params.get("account", {})
-        order = account.get("buyurtma_identifikatori", "")
+        order = account.get("order_id", "")
         amount = params.get("amount", 0)
 
         payment = await get_payment_by_trans_id(order)
         if not payment:
             return payme_error(-31050, "Order not found",
-                              data={"name": "buyurtma_identifikatori"}, request_id=request_id)
+                              data={"name": "order_id"}, request_id=request_id)
 
         # Avval shu tranzaktsiya yaratilganmi?
         if payment.get("external_id") == payme_id:
