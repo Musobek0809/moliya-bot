@@ -14,6 +14,7 @@ from pptx.util import Emu, Inches, Pt
 from lxml import etree
 
 OUT = Path(__file__).resolve().parent
+IMG = OUT / "assets" / "png"
 W, H = Inches(13.333), Inches(7.5)
 
 NAVY = RGBColor(0x0B, 0x3A, 0x6A)
@@ -78,6 +79,18 @@ def rect(slide, l, t, w, h, fill, line=None):
         s.line.width = Pt(1)
     s.shadow.inherit = False
     return s
+
+
+def pic(slide, name, l, t, width=None, height=None):
+    path = IMG / name
+    if not path.exists():
+        return None
+    kwargs = {}
+    if width is not None:
+        kwargs["width"] = width
+    if height is not None:
+        kwargs["height"] = height
+    return slide.shapes.add_picture(str(path), l, t, **kwargs)
 
 
 def round_rect(slide, l, t, w, h, fill, line=None):
@@ -776,13 +789,16 @@ def cover(prs, t, total):
     rect(s, 0, 0, W, H, WHITE)
     rect(s, 0, 0, Inches(0.22), H, NAVY)
     rect(s, Inches(0.22), 0, Inches(0.08), H, BLUE)
+    rect(s, Inches(8.55), 0, Inches(4.79), Inches(6.55), SKY)
     rect(s, 0, Inches(6.55), W, Inches(0.95), NAVY)
-    tb(s, Inches(0.7), Inches(0.45), Inches(12), Inches(0.35), t["cover_kicker"], 13, True, BLUE)
-    tb(s, Inches(0.7), Inches(1.0), Inches(12), Inches(1.1), t["cover_title"], 54, True, NAVY)
-    tb(s, Inches(0.7), Inches(2.15), Inches(11.5), Inches(0.7), t["cover_sub"], 20, False, INK)
-    round_rect(s, Inches(0.7), Inches(3.05), Inches(11.8), Inches(0.7), SKY, LINE)
-    tb(s, Inches(0.9), Inches(3.18), Inches(11.4), Inches(0.5), t["cover_line"], 18, True, NAVY)
-    tb(s, Inches(0.7), Inches(4.0), Inches(11.8), Inches(1.3), t["cover_quote"], 20, False, MUTED)
+    hero = "flash.png" if t["hotel"] else "bella.png"
+    pic(s, hero, Inches(8.85), Inches(0.45), width=Inches(4.15))
+    tb(s, Inches(0.7), Inches(0.45), Inches(7.6), Inches(0.35), t["cover_kicker"], 13, True, BLUE)
+    tb(s, Inches(0.7), Inches(0.95), Inches(7.6), Inches(1.15), t["cover_title"], 48, True, NAVY)
+    tb(s, Inches(0.7), Inches(2.2), Inches(7.6), Inches(0.85), t["cover_sub"], 18, False, INK)
+    round_rect(s, Inches(0.7), Inches(3.15), Inches(7.6), Inches(0.95), SKY, LINE)
+    tb(s, Inches(0.85), Inches(3.28), Inches(7.3), Inches(0.75), t["cover_line"], 16, True, NAVY)
+    tb(s, Inches(0.7), Inches(4.25), Inches(7.6), Inches(1.9), t["cover_quote"], 18, False, MUTED)
     tb(s, Inches(0.7), Inches(6.7), Inches(12), Inches(0.55), t["footer"] + "    ·    Robotics Solutions Partner", 14, False, WHITE)
     return s
 
@@ -822,18 +838,25 @@ def slide_line(prs, t, page, total):
     left = Inches(0.4)
     usable = W - Inches(0.8) - gap * (n - 1)
     cw = usable / n
+    photos = (
+        ["flash.png", "bella.png", "ketty.png", "pudu2.png", "cc1.png"]
+        if t["hotel"]
+        else ["bella.png", "pudu2.png", "ketty.png", "hola.png", "cc1.png"]
+    )
     for i, (title, body) in enumerate(t["line"]):
         x = left + i * (cw + gap)
-        round_rect(s, x, Inches(1.5), cw, Inches(5.4), CARD, LINE)
-        rect(s, x, Inches(1.5), cw, Inches(0.12), BLUE)
-        tb(s, x + Inches(0.12), Inches(1.8), cw - Inches(0.24), Inches(1.1), title, 15, True, NAVY, PP_ALIGN.CENTER)
-        box = s.shapes.add_textbox(x + Inches(0.12), Inches(3.0), cw - Inches(0.24), Inches(3.5))
+        round_rect(s, x, Inches(1.45), cw, Inches(5.5), CARD, LINE)
+        rect(s, x, Inches(1.45), cw, Inches(0.1), BLUE)
+        tb(s, x + Inches(0.08), Inches(1.6), cw - Inches(0.16), Inches(0.7), title, 13, True, NAVY, PP_ALIGN.CENTER)
+        if i < len(photos):
+            pic(s, photos[i], x + Inches(0.22), Inches(2.25), height=Inches(2.35))
+        box = s.shapes.add_textbox(x + Inches(0.1), Inches(4.65), cw - Inches(0.2), Inches(2.1))
         tf = box.text_frame
         tf.word_wrap = True
         p = tf.paragraphs[0]
         p.alignment = PP_ALIGN.CENTER
         run = p.add_run()
-        set_run(run, body, 13, False, INK)
+        set_run(run, body, 12, False, INK)
     return s
 
 
@@ -841,26 +864,40 @@ def slide_hero_model(prs, t, page, total):
     s = blank(prs)
     chrome(s, t["footer"], page, total)
     header(s, t["s5_k"], t["s5_t"], t["s5_s"])
-    round_rect(s, Inches(0.4), Inches(1.4), Inches(7.3), Inches(5.55), CARD, LINE)
-    bullets(s, Inches(0.65), Inches(1.6), Inches(6.9), Inches(5.2), t["bella_left"], 16)
+    round_rect(s, Inches(0.35), Inches(1.35), Inches(3.55), Inches(5.6), SKY, LINE)
+    hero = "flash.png" if t["hotel"] else "bella.png"
+    pic(s, hero, Inches(0.5), Inches(1.55), width=Inches(3.25))
+    round_rect(s, Inches(4.05), Inches(1.35), Inches(4.85), Inches(5.6), CARD, LINE)
+    bullets(s, Inches(4.2), Inches(1.5), Inches(4.55), Inches(5.3), t["bella_left"], 13)
     specs = t["bella_specs"]
     for i, (k, v) in enumerate(specs):
         col = i % 2
         row = i // 2
-        x = Inches(7.9) + col * Inches(2.55)
-        y = Inches(1.4) + row * Inches(1.38)
-        round_rect(s, x, y, Inches(2.4), Inches(1.25), SKY, LINE)
-        tb(s, x + Inches(0.1), y + Inches(0.15), Inches(2.2), Inches(0.35), k, 11, False, MUTED, PP_ALIGN.CENTER)
-        tb(s, x + Inches(0.08), y + Inches(0.5), Inches(2.24), Inches(0.6), v, 13, True, NAVY, PP_ALIGN.CENTER)
+        x = Inches(9.05) + col * Inches(2.05)
+        y = Inches(1.35) + row * Inches(1.4)
+        round_rect(s, x, y, Inches(1.95), Inches(1.28), SKY, LINE)
+        tb(s, x + Inches(0.06), y + Inches(0.14), Inches(1.83), Inches(0.35), k, 10, False, MUTED, PP_ALIGN.CENTER)
+        tb(s, x + Inches(0.06), y + Inches(0.5), Inches(1.83), Inches(0.65), v, 12, True, NAVY, PP_ALIGN.CENTER)
     return s
 
 
-def slide_two_models(prs, t, page, total, k, title, a, b):
+def slide_two_models(prs, t, page, total, k, title, a, b, img_a, img_b):
     s = blank(prs)
     chrome(s, t["footer"], page, total)
     header(s, k, title)
-    card(s, Inches(0.4), Inches(1.45), Inches(6.15), Inches(5.4), a[0], a[1], 20, 16)
-    card(s, Inches(6.75), Inches(1.45), Inches(6.15), Inches(5.4), b[0], b[1], 20, 16)
+    for x, pair, img in (
+        (Inches(0.4), a, img_a),
+        (Inches(6.75), b, img_b),
+    ):
+        round_rect(s, x, Inches(1.4), Inches(6.15), Inches(5.55), CARD, LINE)
+        pic(s, img, x + Inches(0.25), Inches(1.55), height=Inches(2.55))
+        tb(s, x + Inches(2.4), Inches(1.7), Inches(3.5), Inches(2.2), pair[0], 20, True, NAVY)
+        box = s.shapes.add_textbox(x + Inches(0.25), Inches(4.2), Inches(5.65), Inches(2.5))
+        tf = box.text_frame
+        tf.word_wrap = True
+        p = tf.paragraphs[0]
+        run = p.add_run()
+        set_run(run, pair[1], 15, False, INK)
     return s
 
 
@@ -968,8 +1005,10 @@ def slide_pkg(prs, t, page, total):
         ],
         Inches(1.4),
     )
-    round_rect(s, Inches(0.45), Inches(2.8), Inches(12.4), Inches(4.1), CARD, LINE)
-    bullets(s, Inches(0.8), Inches(3.05), Inches(11.7), Inches(3.6), t["pkg"], 17)
+    round_rect(s, Inches(0.45), Inches(2.8), Inches(9.4), Inches(4.1), CARD, LINE)
+    bullets(s, Inches(0.7), Inches(3.0), Inches(8.9), Inches(3.7), t["pkg"], 16)
+    round_rect(s, Inches(10.0), Inches(2.8), Inches(2.85), Inches(4.1), SKY, LINE)
+    pic(s, "flash.png" if t["hotel"] else "bella.png", Inches(10.15), Inches(2.95), height=Inches(3.8))
     return s
 
 
@@ -978,15 +1017,16 @@ def slide_cta(prs, t, page, total):
     rect(s, 0, 0, W, H, WHITE)
     rect(s, 0, 0, W, Inches(0.12), BLUE)
     rect(s, 0, 0, Inches(0.22), H, NAVY)
-    tb(s, Inches(0.7), Inches(0.7), Inches(12), Inches(1.2), t["cta_t"], 28, True, NAVY)
-    tb(s, Inches(0.7), Inches(2.0), Inches(12), Inches(0.7), t["cta_b"], 18, False, MUTED)
+    tb(s, Inches(0.7), Inches(0.55), Inches(8.6), Inches(1.2), t["cta_t"], 26, True, NAVY)
+    tb(s, Inches(0.7), Inches(1.75), Inches(8.6), Inches(0.7), t["cta_b"], 16, False, MUTED)
+    pic(s, "flash.png" if t["hotel"] else "bella.png", Inches(9.5), Inches(0.4), height=Inches(2.55))
     for i, p in enumerate(t["cta_pts"]):
         x = Inches(0.7) + i * Inches(3.1)
-        round_rect(s, x, Inches(3.0), Inches(2.95), Inches(1.35), SKY, LINE)
-        tb(s, x + Inches(0.1), Inches(3.4), Inches(2.75), Inches(0.6), p, 14, True, NAVY, PP_ALIGN.CENTER)
-    round_rect(s, Inches(0.7), Inches(4.7), Inches(12), Inches(1.15), NAVY)
-    tb(s, Inches(0.7), Inches(5.0), Inches(12), Inches(0.6), t["cta_btn"], 22, True, WHITE, PP_ALIGN.CENTER)
-    tb(s, Inches(0.7), Inches(6.3), Inches(12), Inches(0.5), t["footer"], 13, False, MUTED)
+        round_rect(s, x, Inches(2.7), Inches(2.95), Inches(1.2), SKY, LINE)
+        tb(s, x + Inches(0.1), Inches(3.05), Inches(2.75), Inches(0.6), p, 14, True, NAVY, PP_ALIGN.CENTER)
+    round_rect(s, Inches(0.7), Inches(4.2), Inches(12), Inches(1.15), NAVY)
+    tb(s, Inches(0.7), Inches(4.5), Inches(12), Inches(0.6), t["cta_btn"], 22, True, WHITE, PP_ALIGN.CENTER)
+    tb(s, Inches(0.7), Inches(5.6), Inches(12), Inches(0.9), t["footer"], 13, False, MUTED)
     return s
 
 
@@ -998,8 +1038,12 @@ def build(key, filename):
     slide_partner(prs, t, 3, 15)
     slide_line(prs, t, 4, 15)
     slide_hero_model(prs, t, 5, 15)
-    slide_two_models(prs, t, 6, 15, t["s6_k"], t["s6_t"], t["pudu2"], t["ketty"])
-    slide_two_models(prs, t, 7, 15, t["s7_k"], t["s7_t"], t["hola"], t["cc1"])
+    if t["hotel"]:
+        slide_two_models(prs, t, 6, 15, t["s6_k"], t["s6_t"], t["pudu2"], t["ketty"], "bella.png", "ketty.png")
+        slide_two_models(prs, t, 7, 15, t["s7_k"], t["s7_t"], t["hola"], t["cc1"], "flash.png", "cc1.png")
+    else:
+        slide_two_models(prs, t, 6, 15, t["s6_k"], t["s6_t"], t["pudu2"], t["ketty"], "pudu2.png", "ketty.png")
+        slide_two_models(prs, t, 7, 15, t["s7_k"], t["s7_t"], t["hola"], t["cc1"], "hola.png", "cc1.png")
     slide_table(prs, t, 8, 15)
     slide_benefits(prs, t, 9, 15)
     slide_econ(prs, t, 10, 15)
